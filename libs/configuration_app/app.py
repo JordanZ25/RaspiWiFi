@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import subprocess
 import os
 import time
+import json
 from threading import Thread
 
 app = Flask(__name__)
@@ -24,11 +25,17 @@ def manual_ssid_entry():
 def save_credentials():
     ssid = request.form['ssid']
     wifi_key = request.form['wifi_key']
+    mclimate_username = request.form['mclimate_username']
+    mclimate_password = request.form['mclimate_password']
+
+ 
+    f = open("/home/mclimate-homebridge/credentials.json", "w")
+    f.write(json.dumps({'username':mclimate_username,'pass':mclimate_password}))
 
     create_wpa_supplicant(ssid, wifi_key)
     
-    # Call set_ap_client_mode() in a thread otherwise the reboot will prevent
-    # the response from getting to the browser
+    Call set_ap_client_mode() in a thread otherwise the reboot will prevent
+    the response from getting to the browser
     def sleep_and_start_ap():
         time.sleep(2)
         set_ap_client_mode()
@@ -36,6 +43,8 @@ def save_credentials():
     t.start()
 
     return render_template('save_credentials.html', ssid = ssid)
+
+
 
 
 
@@ -103,4 +112,5 @@ if __name__ == '__main__':
     if config_hash['ssl_enabled'] == "1":
         app.run(host = '0.0.0.0', port = int(config_hash['server_port']), ssl_context='adhoc')
     else:
-        app.run(host = '0.0.0.0', port = int(config_hash['server_port']))
+    app.run(host = '0.0.0.0', port = int(config_hash['server_port']))
+
